@@ -159,3 +159,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Agents
+.agents
+.claude
