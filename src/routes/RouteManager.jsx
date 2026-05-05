@@ -2,89 +2,90 @@ import EditorPage from "../(authenticated)/EditorPage.jsx";
 import ExportPage from "../(authenticated)/ExportPage.jsx";
 import HomePage from "../(authenticated)/HomePage.jsx";
 import ReviewPage from "../(authenticated)/ReviewPage.jsx";
+import AuthenticatedIndex from "../(authenticated)/_index.jsx";
 import SignInPage from "../(unauthenticated)/SignInPage.jsx";
 import { isSignedIn } from "../auth.js";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Outlet,
+  RouterProvider,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  redirect,
+} from "@tanstack/react-router";
 
-const routes = [
-  {
-    path: "/sign-in",
-    component: SignInPage,
-    authentication: false,
-  },
-  {
-    path: "/",
-    component: HomePage,
-    authentication: true,
-  },
-  {
-    path: "/editor",
-    component: EditorPage,
-    authentication: true,
-  },
-  {
-    path: "/review",
-    component: ReviewPage,
-    authentication: true,
-  },
-  {
-    path: "/export",
-    component: ExportPage,
-    authentication: true,
-  },
-];
-
-function redirectTo(path) {
-  window.history.replaceState({}, "", path);
-  window.dispatchEvent(new Event("popstate"));
+function RootLayout() {
+  return <Outlet />;
 }
 
+function requireAuthentication() {
+  if (!isSignedIn()) {
+    throw redirect({ to: "/sign-in" });
+  }
+}
+
+function redirectAuthenticatedUser() {
+  if (isSignedIn()) {
+    throw redirect({ to: "/" });
+  }
+}
+
+const rootRoute = createRootRoute({
+  component: RootLayout,
+});
+
+const signInRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/sign-in",
+  beforeLoad: redirectAuthenticatedUser,
+  component: SignInPage,
+});
+
+const authenticatedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "authenticated",
+  beforeLoad: requireAuthentication,
+  component: AuthenticatedIndex,
+});
+
+const homeRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/",
+  component: HomePage,
+});
+
+const editorRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/editor",
+  component: EditorPage,
+});
+
+const reviewRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/review",
+  component: ReviewPage,
+});
+
+const exportRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/export",
+  component: ExportPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  signInRoute,
+  authenticatedRoute.addChildren([
+    homeRoute,
+    editorRoute,
+    reviewRoute,
+    exportRoute,
+  ]),
+]);
+
+const router = createRouter({ routeTree });
+
 function RouteManager() {
-  const [currentPath, setCurrentPath] = useState(window.location.pathname);
-  const [signedIn, setSignedIn] = useState(isSignedIn);
-
-  useEffect(() => {
-    const handleNavigation = () => {
-      setCurrentPath(window.location.pathname);
-      setSignedIn(isSignedIn());
-    };
-
-    window.addEventListener("popstate", handleNavigation);
-    window.addEventListener("authchange", handleNavigation);
-
-    return () => {
-      window.removeEventListener("popstate", handleNavigation);
-      window.removeEventListener("authchange", handleNavigation);
-    };
-  }, []);
-
-  const matchedRoute = useMemo(
-    () => routes.find((route) => route.path === currentPath) ?? routes[1],
-    [currentPath],
-  );
-
-  useEffect(() => {
-    if (matchedRoute.authentication && !signedIn) {
-      redirectTo("/sign-in");
-      return;
-    }
-
-    if (!matchedRoute.authentication && signedIn) {
-      redirectTo("/");
-    }
-  }, [matchedRoute, signedIn]);
-
-  if (matchedRoute.authentication && !signedIn) {
-    return null;
-  }
-
-  if (!matchedRoute.authentication && signedIn) {
-    return null;
-  }
-
-  const Page = matchedRoute.component;
-
-  return <Page />;
+  return <RouterProvider router={router} />;
 }
 
 export default RouteManager;

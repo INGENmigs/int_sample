@@ -9,4 +9,9 @@ function signIn() {
   window.dispatchEvent(new Event("authchange"));
 }
 
-export { isSignedIn, signIn };
+function signOut() {
+  window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  window.dispatchEvent(new Event("authchange"));
+}
+
+export { isSignedIn, signIn, signOut };
