@@ -111,7 +111,8 @@ p {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -297,6 +298,443 @@ code {
   font-size: 15px;
 }
 
+.evaluation-section {
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+  color: #111827;
+}
+
+.evaluation-form {
+  width: min(100%, 720px);
+  display: grid;
+  gap: 22px;
+}
+
+.evaluation-form h2 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 29px;
+  line-height: 1.18;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.evaluation-form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.evaluation-form legend {
+  margin-bottom: 12px;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.evaluation-grid,
+.document-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+}
+
+.evaluation-field {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  color: #344054;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.evaluation-field strong {
+  color: #ef4444;
+}
+
+.evaluation-field input,
+.evaluation-field textarea,
+.file-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  color: #111827;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.evaluation-field input,
+.evaluation-field textarea {
+  height: 48px;
+  border: 1px solid #d9dee7;
+  border-radius: 6px;
+  padding: 0 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+}
+
+.evaluation-field input:focus-visible,
+.evaluation-field textarea:focus-visible,
+.file-input input:focus-visible,
+.document-header button:focus-visible,
+.date-toggle:focus-visible,
+.date-popover button:focus-visible,
+.generate-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.date-selector {
+  position: relative;
+}
+
+.date-selector-control {
+  position: relative;
+  display: block;
+}
+
+.date-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+.date-toggle::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #111827;
+  border-top-width: 4px;
+  border-radius: 2px;
+  color: #111827;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.date-toggle:hover {
+  background: #f2f4f7;
+}
+
+.date-selector input {
+  padding-right: 44px;
+}
+
+.date-popover {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 310px;
+  padding: 14px;
+  border: 1px solid #d9dee7;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+  box-sizing: border-box;
+}
+
+.date-popover-header,
+.date-popover-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.date-popover-header {
+  margin-bottom: 12px;
+}
+
+.date-popover-header strong {
+  color: #111827;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.date-popover button {
+  border: 1px solid #d9dee7;
+  border-radius: 5px;
+  color: #111827;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.date-popover-header button,
+.date-popover-actions button {
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.date-popover button:hover {
+  background: #f8fafc;
+}
+
+.weekday-row,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.weekday-row {
+  margin-bottom: 6px;
+}
+
+.weekday-row span {
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.calendar-day.outside-month {
+  color: #98a2b3;
+}
+
+.calendar-day.today {
+  border-color: #2563eb;
+}
+
+.calendar-day.selected-day {
+  border-color: #081426;
+  color: #ffffff;
+  background: #081426;
+}
+
+.date-popover-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eef2f6;
+}
+
+.notes-field {
+  grid-column: 1 / -1;
+}
+
+.notes-field textarea {
+  height: 125px;
+  padding: 16px;
+  line-height: 1.55;
+  overflow: auto;
+  resize: vertical;
+}
+
+.document-panel {
+  min-width: 0;
+  min-height: 250px;
+  padding: 16px;
+  border: 1px solid #d9dee7;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.document-header,
+.file-input,
+.parsed-status,
+.criteria-row {
+  display: flex;
+  align-items: center;
+}
+
+.document-header {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.document-header h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.document-header h3 span {
+  color: #344054;
+  font-weight: 500;
+}
+
+.document-header button {
+  border: 0;
+  padding: 0;
+  color: #155eef;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.file-input {
+  gap: 12px;
+}
+
+.rubric-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.resume-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.file-icon {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.spreadsheet-icon {
+  background: #16a34a;
+}
+
+.document-icon {
+  background: #2563eb;
+}
+
+.file-input input {
+  height: 28px;
+  padding: 0;
+  font-size: 15px;
+}
+
+.file-name,
+.empty-file-name {
+  min-width: 0;
+  color: #111827;
+  font-size: 15px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty-file-name {
+  color: #667085;
+}
+
+.rubric-error {
+  margin-top: 12px;
+  color: #b42318;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.parsed-status {
+  gap: 8px;
+  margin: 12px 0 14px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: #dcfce7;
+}
+
+.parsed-status span {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #16a34a;
+  border-radius: 999px;
+  color: #16a34a;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.parsed-status strong {
+  color: #15803d;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.criteria-list {
+  display: grid;
+  gap: 6px;
+}
+
+.criteria-row {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.criteria-row span {
+  min-width: 0;
+  color: #111827;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.criteria-row span:last-child {
+  max-width: 56px;
+  text-align: right;
+}
+
+.resume-summary-text {
+  margin-top: 16px;
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.generate-button {
+  min-height: 54px;
+  border: 0;
+  border-radius: 4px;
+  color: #ffffff;
+  background: #081426;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.generate-button:hover {
+  background: #0f1f35;
+}
+
 @media (max-width: 720px) {
   .app-header {
     min-height: 76px;
@@ -317,5 +755,23 @@ code {
 
   .home-content {
     padding: 24px 20px;
+  }
+
+  .evaluation-form h2 {
+    font-size: 24px;
+    text-align: left;
+  }
+
+  .evaluation-grid,
+  .document-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .notes-field textarea {
+    height: 112px;
+  }
+
+  .date-popover {
+    width: min(310px, calc(100vw - 40px));
   }
 }
