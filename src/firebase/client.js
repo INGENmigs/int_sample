@@ -1,5 +1,6 @@
-import {getApp, getApps, initializeApp} from "firebase/app";
-import {getFirestore} from "firebase/firestore";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -25,7 +26,16 @@ function getFirebaseConfig() {
   return firebaseConfig;
 }
 
-const app = getApps().length > 0 ? getApp() : initializeApp(getFirebaseConfig());
+const app =
+  getApps().length > 0 ? getApp() : initializeApp(getFirebaseConfig());
 const db = getFirestore(app);
 
-export {app, db};
+const ai = getAI(app, {
+  backend: new GoogleAIBackend(),
+});
+
+const geminiModel = getGenerativeModel(ai, {
+  model: "gemini-2.5-flash",
+});
+
+export { app, db, ai, geminiModel };
