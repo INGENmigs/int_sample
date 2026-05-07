@@ -4,6 +4,7 @@ import HomePage from "../(authenticated)/HomePage.jsx";
 import ReviewPage from "../(authenticated)/ReviewPage.jsx";
 import AuthenticatedIndex from "../(authenticated)/_index.jsx";
 import SignInPage from "../(unauthenticated)/SignInPage.jsx";
+import AiTestPage from "../ai/AiTestPage.jsx";
 import { isSignedIn } from "../auth.js";
 import {
   Outlet,
@@ -72,6 +73,12 @@ const exportRoute = createRoute({
   component: ExportPage,
 });
 
+const aiTestRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/ai-test",
+  component: AiTestPage,
+});
+
 const routeTree = rootRoute.addChildren([
   signInRoute,
   authenticatedRoute.addChildren([
@@ -79,6 +86,7 @@ const routeTree = rootRoute.addChildren([
     editorRoute,
     reviewRoute,
     exportRoute,
+    aiTestRoute,
   ]),
 ]);
 

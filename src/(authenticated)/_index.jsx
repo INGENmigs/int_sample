@@ -23,6 +23,11 @@ const authenticatedPages = [
     title: "Export",
     description: "Package finalized interview materials.",
   },
+  {
+    path: "/ai-test",
+    title: "AI Test",
+    description: "Test one Firebase AI Logic prompt.",
+  },
 ];
 
 function AuthenticatedIndex() {

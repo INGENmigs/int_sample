@@ -1,14 +1,6 @@
 import { useRef, useState } from "react";
 import DateSelector from "./DateSelector.jsx";
 
-const placeholderCriteria = [
-  { label: "Communication", weight: "0.15" },
-  { label: "Technical Depth", weight: "0.30" },
-  { label: "System Design", weight: "0.25" },
-  { label: "Problem Solving", weight: "0.20" },
-  { label: "Collaboration", weight: "0.10" },
-];
-
 function normalizeCell(value) {
   if (value?.richText) {
     return value.richText
@@ -89,7 +81,7 @@ function TextField({
 function InterviewEvaluationForm() {
   const rubricInputRef = useRef(null);
   const [rubricFileName, setRubricFileName] = useState("");
-  const [rubricCriteria, setRubricCriteria] = useState(placeholderCriteria);
+  const [rubricCriteria, setRubricCriteria] = useState({});
   const [rubricError, setRubricError] = useState("");
   const resumeInputRef = useRef(null);
   const [resumeFileName, setResumeFileName] = useState("");
@@ -137,7 +129,7 @@ function InterviewEvaluationForm() {
       setRubricError("");
     } catch (error) {
       setRubricFileName("");
-      setRubricCriteria(placeholderCriteria);
+      setRubricCriteria({});
       setRubricError(
         error.message || "Unable to parse the selected spreadsheet.",
       );

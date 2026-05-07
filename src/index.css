@@ -735,6 +735,73 @@ code {
   background: #0f1f35;
 }
 
+.ai-test-page {
+  display: flex;
+  justify-content: center;
+}
+
+.ai-test-form {
+  width: min(100%, 720px);
+  display: grid;
+  gap: 18px;
+}
+
+.ai-test-form p {
+  color: var(--text);
+}
+
+.ai-prompt-field {
+  display: grid;
+  gap: 8px;
+  color: var(--text-h);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ai-prompt-field textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  color: var(--text-h);
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+.ai-test-form button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  background: var(--accent);
+  font-weight: 700;
+}
+
+.ai-test-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.ai-prompt-field textarea:focus-visible,
+.ai-test-form button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.ai-output {
+  display: block;
+  min-height: 180px;
+  white-space: pre-wrap;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  color: var(--text-h);
+  background: var(--social-bg);
+  box-sizing: border-box;
+}
+
 @media (max-width: 720px) {
   .app-header {
     min-height: 76px;
