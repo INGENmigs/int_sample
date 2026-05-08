@@ -1,5 +1,15 @@
 import { useRef, useState } from "react";
+import { getAuth } from "firebase/auth";
+import {
+  Bytes,
+  addDoc,
+  collection,
+  serverTimestamp,
+} from "firebase/firestore";
+import { useNavigate } from "@tanstack/react-router";
 import DateSelector from "./DateSelector.jsx";
+
+const MAX_FIRESTORE_FILE_BYTES = 850 * 1024;
 
 function normalizeCell(value) {
   if (value?.richText) {
@@ -79,17 +89,24 @@ function TextField({
 }
 
 function InterviewEvaluationForm() {
+  const navigate = useNavigate();
+  const formRef = useRef(null);
   const rubricInputRef = useRef(null);
   const [rubricFileName, setRubricFileName] = useState("");
-  const [rubricCriteria, setRubricCriteria] = useState({});
+  const [rubricFile, setRubricFile] = useState(null);
+  const [rubricCriteria, setRubricCriteria] = useState([]);
   const [rubricError, setRubricError] = useState("");
   const resumeInputRef = useRef(null);
   const [resumeFileName, setResumeFileName] = useState("");
+  const [resumeFile, setResumeFile] = useState(null);
   const [resumeSummary, setResumeSummary] = useState("");
   const [resumeError, setResumeError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   function openRubricUpload() {
     setRubricError("");
+    setSaveError("");
     if (rubricInputRef.current) {
       rubricInputRef.current.value = "";
       rubricInputRef.current.click();
@@ -106,6 +123,9 @@ function InterviewEvaluationForm() {
     const isExcelFile = /\.xlsx$/i.test(file.name);
 
     if (!isExcelFile) {
+      setRubricFileName("");
+      setRubricFile(null);
+      setRubricCriteria([]);
       setRubricError("Upload an Excel workbook with an .xlsx extension.");
       return;
     }
@@ -113,7 +133,8 @@ function InterviewEvaluationForm() {
     try {
       const ExcelJS = await import("exceljs");
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(await file.arrayBuffer());
+      const arrayBuffer = await file.arrayBuffer();
+      await workbook.xlsx.load(arrayBuffer);
       const firstSheet = workbook.worksheets[0];
 
       if (!firstSheet) {
@@ -125,11 +146,19 @@ function InterviewEvaluationForm() {
       const parsedCriteria = parseRubricRows(firstSheet);
 
       setRubricFileName(file.name);
+      setRubricFile({
+        bytes: new Uint8Array(arrayBuffer),
+        contentType: file.type,
+        fileName: file.name,
+        size: file.size,
+      });
       setRubricCriteria(parsedCriteria);
       setRubricError("");
+      setSaveError("");
     } catch (error) {
       setRubricFileName("");
-      setRubricCriteria({});
+      setRubricFile(null);
+      setRubricCriteria([]);
       setRubricError(
         error.message || "Unable to parse the selected spreadsheet.",
       );
@@ -138,6 +167,7 @@ function InterviewEvaluationForm() {
 
   function openResumeUpload() {
     setResumeError("");
+    setSaveError("");
     if (resumeInputRef.current) {
       resumeInputRef.current.value = "";
       resumeInputRef.current.click();
@@ -162,6 +192,9 @@ function InterviewEvaluationForm() {
     const isWordFile = /\.(doc|docx)$/i.test(file.name);
 
     if (!isWordFile) {
+      setResumeFileName("");
+      setResumeFile(null);
+      setResumeSummary("");
       setResumeError("Upload a Word file with a .doc or .docx extension.");
       return;
     }
@@ -173,9 +206,10 @@ function InterviewEvaluationForm() {
         );
       }
 
+      const arrayBuffer = await file.arrayBuffer();
       const mammoth = await import("mammoth");
       const result = await mammoth.extractRawText({
-        arrayBuffer: await file.arrayBuffer(),
+        arrayBuffer,
       });
       const firstTwoLines = parseFirstTwoLinesFromText(result.value);
 
@@ -184,17 +218,112 @@ function InterviewEvaluationForm() {
       }
 
       setResumeFileName(file.name);
+      setResumeFile({
+        bytes: new Uint8Array(arrayBuffer),
+        contentType: file.type,
+        fileName: file.name,
+        size: file.size,
+      });
       setResumeSummary(firstTwoLines.join(" | "));
       setResumeError("");
+      setSaveError("");
     } catch (error) {
       setResumeFileName("");
+      setResumeFile(null);
       setResumeSummary("");
       setResumeError(error.message || "Unable to parse the selected resume.");
     }
   }
 
+  async function handleGenerateEvaluation() {
+    const form = formRef.current;
+
+    if (!form || isSaving) {
+      return;
+    }
+
+    setSaveError("");
+
+    const formData = new FormData(form);
+    const interviewNotes = formData.get("interviewNotes")?.toString().trim();
+
+    if (!interviewNotes) {
+      setSaveError("Interview notes are required before generating an evaluation.");
+      return;
+    }
+
+    if (!rubricFile) {
+      setSaveError("Upload a valid Excel rubric before generating an evaluation.");
+      return;
+    }
+
+    const totalFileBytes = rubricFile.size + (resumeFile?.size ?? 0);
+
+    if (totalFileBytes > MAX_FIRESTORE_FILE_BYTES) {
+      setSaveError(
+        "The uploaded files are too large to store in Firestore. Keep the combined file size under 850 KB.",
+      );
+      return;
+    }
+
+    const { app, db } = await import("../firebase/client.js");
+    const auth = getAuth(app);
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      setSaveError("Your sign-in session has expired. Sign in again before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const docRef = await addDoc(collection(db, "interview-details"), {
+        candidateName: formData.get("candidateName")?.toString().trim() ?? "",
+        candidateRole: formData.get("candidateRole")?.toString().trim() ?? "",
+        interviewer: formData.get("interviewer")?.toString().trim() ?? "",
+        interviewDate: formData.get("interviewDate")?.toString().trim() ?? "",
+        interviewNotes,
+        rubric: {
+          bytes: Bytes.fromUint8Array(rubricFile.bytes),
+          contentType: rubricFile.contentType,
+          criteria: rubricCriteria,
+          fileName: rubricFile.fileName,
+          size: rubricFile.size,
+        },
+        resume: resumeFile
+          ? {
+              bytes: Bytes.fromUint8Array(resumeFile.bytes),
+              contentType: resumeFile.contentType,
+              fileName: resumeFile.fileName,
+              size: resumeFile.size,
+              summary: resumeSummary,
+            }
+          : null,
+        createdAt: serverTimestamp(),
+        createdByUid: currentUser.uid,
+      });
+
+      await navigate({
+        to: "/editor/$documentId",
+        params: { documentId: docRef.id },
+      });
+    } catch (error) {
+      console.error("Unable to save evaluation details.", error);
+      setSaveError(
+        error.message || "Unable to save evaluation details. Please try again.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
-    <form className="evaluation-form" aria-label="Interview evaluation notes">
+    <form
+      ref={formRef}
+      className="evaluation-form"
+      aria-label="Interview evaluation notes"
+    >
       <h2>Provide interview notes to generate an Evaluation.</h2>
 
       <fieldset>
@@ -314,8 +443,19 @@ function InterviewEvaluationForm() {
         </div>
       </fieldset>
 
-      <button className="generate-button" type="button">
-        Generate Evaluation
+      {saveError ? (
+        <p className="rubric-error" role="alert">
+          {saveError}
+        </p>
+      ) : null}
+
+      <button
+        className="generate-button"
+        type="button"
+        disabled={isSaving}
+        onClick={handleGenerateEvaluation}
+      >
+        {isSaving ? "Saving..." : "Generate Evaluation"}
       </button>
     </form>
   );

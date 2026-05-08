@@ -61,6 +61,12 @@ const editorRoute = createRoute({
   component: EditorPage,
 });
 
+const editorDocumentRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/editor/$documentId",
+  component: EditorPage,
+});
+
 const reviewRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/review",
@@ -84,6 +90,7 @@ const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([
     homeRoute,
     editorRoute,
+    editorDocumentRoute,
     reviewRoute,
     exportRoute,
     aiTestRoute,

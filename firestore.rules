@@ -2,6 +2,127 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: interview-details
+    // Document ID: auto-generated
+    // Fields:
+    //   - candidateName: string (required, 0..120 chars)
+    //   - candidateRole: string (required, 0..120 chars)
+    //   - interviewer: string (required, 0..120 chars)
+    //   - interviewDate: string (required, 0..80 chars)
+    //   - interviewNotes: string (required, 1..5000 chars)
+    //   - rubric: map (required) with fileName, contentType, size, bytes, criteria
+    //   - resume: null or map (required) with fileName, contentType, size, bytes, summary
+    //   - createdAt: timestamp (required, must be request time)
+    //   - createdByUid: string (required, immutable by denying updates)
+    //
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function uidUnchanged() {
+      return !('createdByUid' in request.resource.data) ||
+        request.resource.data.createdByUid == request.auth.uid;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function validString(value, minLen, maxLen) {
+      return value is string &&
+        value.size() >= minLen &&
+        value.size() <= maxLen;
+    }
+
+    function validNonNegativeInt(value, maxValue) {
+      return value is int && value >= 0 && value <= maxValue;
+    }
+
+    function validRubric(data) {
+      return data is map &&
+        hasRequiredFields(data, ['fileName', 'contentType', 'size', 'bytes', 'criteria']) &&
+        hasOnlyAllowedFields(data, ['fileName', 'contentType', 'size', 'bytes', 'criteria']) &&
+        validString(data.fileName, 1, 180) &&
+        data.fileName.matches('.*\\.[xX][lL][sS][xX]$') &&
+        validString(data.contentType, 0, 160) &&
+        validNonNegativeInt(data.size, 870400) &&
+        data.bytes is bytes &&
+        data.bytes.size() == data.size &&
+        data.criteria is list &&
+        data.criteria.size() <= 100;
+    }
+
+    function validResume(data) {
+      return data is map &&
+        hasRequiredFields(data, ['fileName', 'contentType', 'size', 'bytes', 'summary']) &&
+        hasOnlyAllowedFields(data, ['fileName', 'contentType', 'size', 'bytes', 'summary']) &&
+        validString(data.fileName, 1, 180) &&
+        data.fileName.matches('.*\\.[dD][oO][cC][xX]$') &&
+        validString(data.contentType, 0, 160) &&
+        validNonNegativeInt(data.size, 870400) &&
+        data.bytes is bytes &&
+        data.bytes.size() == data.size &&
+        validString(data.summary, 1, 500);
+    }
+
+    function validTotalFileSize(data) {
+      return (data.resume == null && data.rubric.size <= 870400) ||
+        (data.resume is map && data.rubric.size + data.resume.size <= 870400);
+    }
+
+    function isValidInterviewDetails(data) {
+      return hasRequiredFields(data, [
+          'candidateName',
+          'candidateRole',
+          'interviewer',
+          'interviewDate',
+          'interviewNotes',
+          'rubric',
+          'resume',
+          'createdAt',
+          'createdByUid',
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'candidateName',
+          'candidateRole',
+          'interviewer',
+          'interviewDate',
+          'interviewNotes',
+          'rubric',
+          'resume',
+          'createdAt',
+          'createdByUid',
+        ]) &&
+        validString(data.candidateName, 0, 120) &&
+        validString(data.candidateRole, 0, 120) &&
+        validString(data.interviewer, 0, 120) &&
+        validString(data.interviewDate, 0, 80) &&
+        validString(data.interviewNotes, 1, 5000) &&
+        validRubric(data.rubric) &&
+        (data.resume == null || validResume(data.resume)) &&
+        validTotalFileSize(data) &&
+        data.createdAt == request.time &&
+        data.createdByUid is string &&
+        data.createdByUid == request.auth.uid;
+    }
+
+    match /interview-details/{interviewDetailsId} {
+      allow create: if isAuthenticated() &&
+        uidUnchanged() &&
+        isValidInterviewDetails(request.resource.data);
+      allow read, update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
