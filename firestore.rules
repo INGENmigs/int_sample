@@ -30,6 +30,12 @@ service cloud.firestore {
         request.resource.data.createdByUid == request.auth.uid;
     }
 
+    function isDocOwner() {
+      return isAuthenticated() &&
+        resource.data.createdByUid is string &&
+        resource.data.createdByUid == request.auth.uid;
+    }
+
     function hasRequiredFields(data, fields) {
       return data.keys().hasAll(fields);
     }
@@ -120,7 +126,8 @@ service cloud.firestore {
       allow create: if isAuthenticated() &&
         uidUnchanged() &&
         isValidInterviewDetails(request.resource.data);
-      allow read, update, delete: if false;
+      allow read: if isDocOwner();
+      allow update, delete: if false;
     }
 
     match /{document=**} {

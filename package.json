@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tanstack/react-router": "^1.169.1",
+    "@tiptap/react": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
     "exceljs": "^4.4.0",
     "firebase": "^12.12.1",
     "mammoth": "^1.12.0",
