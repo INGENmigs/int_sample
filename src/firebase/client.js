@@ -1,6 +1,11 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+import {
+  getAI,
+  getGenerativeModel,
+  getTemplateGenerativeModel,
+  GoogleAIBackend,
+} from "firebase/ai";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -38,4 +43,6 @@ const geminiModel = getGenerativeModel(ai, {
   model: "gemini-2.5-flash",
 });
 
-export { app, db, ai, geminiModel };
+const templateGenerativeModel = getTemplateGenerativeModel(ai);
+
+export { app, db, ai, geminiModel, templateGenerativeModel };

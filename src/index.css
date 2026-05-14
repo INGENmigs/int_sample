@@ -740,117 +740,29 @@ code {
   gap: 22px;
 }
 
-.editor-page-header {
-  display: grid;
-  gap: 6px;
-}
-
-.editor-page-header h2 {
-  margin-bottom: 0;
-}
-
 .editor-workspace {
   display: grid;
-  grid-template-columns: minmax(220px, 310px) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
 
-.editor-intake-panel,
 .rich-editor-panel {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--bg);
+  background: #ffffff;
   box-sizing: border-box;
 }
 
-.editor-intake-panel {
-  display: grid;
-  gap: 18px;
-  padding: 18px;
-}
-
-.editor-intake-panel h3,
-.rich-editor-header h3,
-.editor-reference-block h4 {
+.rich-editor-header h3 {
   margin: 0;
-  color: var(--text-h);
+  color: #111827;
   letter-spacing: 0;
 }
 
-.editor-intake-panel h3,
 .rich-editor-header h3 {
   font-size: 18px;
   line-height: 1.25;
-}
-
-.editor-detail-list {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-}
-
-.editor-detail-item {
-  display: grid;
-  gap: 3px;
-}
-
-.editor-detail-item dt,
-.editor-reference-block h4 {
-  color: var(--text);
-  font-size: 13px;
-  line-height: 1.25;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.editor-detail-item dd {
-  margin: 0;
-  color: var(--text-h);
-  font-size: 15px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
-.editor-reference-block {
-  display: grid;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-
-.editor-reference-block p {
-  color: var(--text-h);
-  font-size: 15px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-}
-
-.editor-criteria-list {
-  display: grid;
-  gap: 7px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.editor-criteria-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--text-h);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-.editor-criteria-list span {
-  min-width: 0;
-}
-
-.editor-criteria-list strong {
-  flex: 0 0 auto;
-  color: var(--text);
 }
 
 .rich-editor-panel {
@@ -868,7 +780,7 @@ code {
 }
 
 .rich-editor-header span {
-  color: var(--text);
+  color: #667085;
   font-size: 13px;
   font-weight: 700;
 }
@@ -876,28 +788,64 @@ code {
 .editor-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   padding: 12px 18px;
   border-bottom: 1px solid var(--border);
-  background: var(--social-bg);
+  background: #f8fafc;
+}
+
+.editor-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 6px;
+  min-width: 0;
+  padding-right: 10px;
+  border-right: 1px solid #d9dee7;
+}
+
+.editor-toolbar-group:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.editor-format-select {
+  display: grid;
+  gap: 4px;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.editor-format-select select {
+  min-height: 34px;
+  border: 1px solid #d9dee7;
+  border-radius: 5px;
+  padding: 0 32px 0 10px;
+  color: #111827;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .editor-toolbar button {
   min-width: 38px;
   min-height: 34px;
-  border: 1px solid var(--border);
+  border: 1px solid #d9dee7;
   border-radius: 5px;
   padding: 0 10px;
-  color: var(--text-h);
-  background: var(--bg);
+  color: #111827;
+  background: #ffffff;
   font-size: 14px;
   font-weight: 700;
 }
 
 .editor-toolbar button:hover:not(:disabled),
 .editor-toolbar button.active {
-  border-color: var(--accent-border);
-  color: var(--accent);
+  border-color: #2563eb;
+  color: #155eef;
+  background: #eff6ff;
 }
 
 .editor-toolbar button:disabled {
@@ -906,17 +854,24 @@ code {
 }
 
 .editor-toolbar button:focus-visible,
+.editor-format-select select:focus-visible,
 .rich-editor-content .ProseMirror:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
 
 .rich-editor-content .ProseMirror {
   min-height: 420px;
   padding: 20px;
-  color: var(--text-h);
+  color: #111827;
+  background: #ffffff;
   line-height: 1.65;
   box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.rich-editor-content .ProseMirror * {
+  color: #111827;
 }
 
 .rich-editor-content .ProseMirror > * + * {
@@ -929,7 +884,35 @@ code {
 
 .rich-editor-content .ProseMirror h2 {
   margin: 18px 0 8px;
+  color: #111827;
   font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.rich-editor-content .ProseMirror h1 {
+  margin: 20px 0 10px;
+  color: #111827;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.rich-editor-content .ProseMirror h3 {
+  margin: 16px 0 6px;
+  color: #111827;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.rich-editor-content .ProseMirror h4,
+.rich-editor-content .ProseMirror h5,
+.rich-editor-content .ProseMirror h6 {
+  margin: 14px 0 6px;
+  color: #111827;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 .rich-editor-content .ProseMirror ul,
@@ -940,8 +923,47 @@ code {
 .rich-editor-content .ProseMirror blockquote {
   margin: 12px 0;
   padding-left: 14px;
-  border-left: 3px solid var(--accent-border);
-  color: var(--text);
+  border-left: 3px solid #98a2b3;
+}
+
+.rich-editor-content .ProseMirror code {
+  background: #f2f4f7;
+  color: #111827;
+}
+
+.rich-editor-content .ProseMirror a {
+  color: #155eef;
+  text-decoration: underline;
+}
+
+.rich-editor-content .ProseMirror hr {
+  border: 0;
+  border-top: 1px solid #d9dee7;
+  margin: 18px 0;
+}
+
+.rich-editor-content .ProseMirror table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 16px 0;
+  background: #ffffff;
+}
+
+.rich-editor-content .ProseMirror th,
+.rich-editor-content .ProseMirror td {
+  border: 1px solid #d9dee7;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  background: #ffffff;
+}
+
+.rich-editor-content .ProseMirror th {
+  font-weight: 700;
+  background: #f8fafc;
 }
 
 .ai-test-page {
