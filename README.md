@@ -1,5 +1,23 @@
 # React + Vite
 
+## Firebase Hosting
+
+This app is configured for Firebase Hosting Classic as a Vite single-page app.
+Hosting serves the production build from `dist` and rewrites application routes
+back to `index.html`.
+
+Before building, make sure `.env` contains the Vite Firebase variables shown in
+`.env.example`.
+
+Run these commands yourself when you are ready:
+
+```powershell
+npm.cmd run build
+npx -y firebase-tools@latest deploy --only hosting
+```
+
+The active Firebase project is configured in `.firebaserc` as `int-sample`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

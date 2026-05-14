@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-router": "^1.169.1",
     "@tiptap/extension-table": "^3.22.5",
+    "@tiptap/extension-text-align": "^3.22.5",
     "@tiptap/react": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
     "exceljs": "^4.4.0",

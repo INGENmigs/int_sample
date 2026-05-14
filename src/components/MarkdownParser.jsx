@@ -40,20 +40,57 @@ function getMarkdownTableCells(line) {
     .map((cell) => formatInlineMarkdown(cell.trim()));
 }
 
+function getMarkdownTableAlignments(separatorRow) {
+  return separatorRow
+    .trim()
+    .slice(1, -1)
+    .split("|")
+    .map((cell) => {
+      const value = cell.trim();
+      const startsWithColon = value.startsWith(":");
+      const endsWithColon = value.endsWith(":");
+
+      if (startsWithColon && endsWithColon) {
+        return "center";
+      }
+
+      if (endsWithColon) {
+        return "right";
+      }
+
+      if (startsWithColon) {
+        return "left";
+      }
+
+      return "";
+    });
+}
+
+function tableCellToHtml(tagName, cell, alignment) {
+  const styleAttribute = alignment ? ` style="text-align: ${alignment}"` : "";
+
+  return `<${tagName}${styleAttribute}>${cell}</${tagName}>`;
+}
+
 function tableRowsToHtml(tableRows) {
-  const [headerRow, , ...bodyRows] = tableRows;
+  const [headerRow, separatorRow, ...bodyRows] = tableRows;
   const headerCells = getMarkdownTableCells(headerRow);
+  const alignments = getMarkdownTableAlignments(separatorRow);
   const bodyHtml = bodyRows
     .filter(isMarkdownTableRow)
     .map((row) => {
       const cells = getMarkdownTableCells(row);
 
-      return `<tr>${cells.map((cell) => `<td>${cell}</td>`).join("")}</tr>`;
+      return `<tr>${cells
+        .map((cell, cellIndex) =>
+          tableCellToHtml("td", cell, alignments[cellIndex]),
+        )
+        .join("")}</tr>`;
     })
     .join("");
 
   return `<table><thead><tr>${headerCells
-    .map((cell) => `<th>${cell}</th>`)
+    .map((cell, cellIndex) => tableCellToHtml("th", cell, alignments[cellIndex]))
     .join("")}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
 }
 
