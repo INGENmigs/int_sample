@@ -1,6 +1,6 @@
 import { useParams } from "@tanstack/react-router";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { textToEditorHtml } from "../components/MarkdownParser.jsx";
 import RichTextEditor from "../components/RichTextEditor.jsx";
@@ -117,9 +117,26 @@ function EditorPage() {
 
         if (editor && generatedDocumentIdRef.current !== documentId) {
           generatedDocumentIdRef.current = documentId;
-          setDraftStatus("Generating evaluation...");
+          setDraftStatus("Loading saved evaluation draft...");
 
           try {
+            const evaluationDraftRef = doc(db, "evaluation-docu", documentId);
+            const evaluationDraftSnapshot = await getDoc(evaluationDraftRef);
+
+            if (!isCurrent) {
+              return;
+            }
+
+            if (evaluationDraftSnapshot.exists()) {
+              const savedDraft = evaluationDraftSnapshot.data();
+
+              editor.commands.setContent(savedDraft.draftHtml ?? "");
+              setDraftStatus("Loaded saved evaluation draft");
+              return;
+            }
+
+            setDraftStatus("Generating evaluation...");
+
             const { templateGenerativeModel } = await import(
               "../firebase/client.js"
             );
@@ -133,7 +150,21 @@ function EditorPage() {
               return;
             }
 
-            editor.commands.setContent(textToEditorHtml(generatedText));
+            const generatedHtml = textToEditorHtml(generatedText);
+
+            editor.commands.setContent(generatedHtml);
+            await setDoc(evaluationDraftRef, {
+              documentId,
+              draftHtml: generatedHtml,
+              promptTemplateId: evaluationPromptTemplateId,
+              createdAt: serverTimestamp(),
+              createdByUid: currentUser.uid,
+            });
+
+            if (!isCurrent) {
+              return;
+            }
+
             setDraftStatus("Generated from evaluation prompt");
           } catch (generationError) {
             if (!isCurrent) {

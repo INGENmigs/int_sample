@@ -19,6 +19,15 @@ service cloud.firestore {
     //   - createdAt: timestamp (required, must be request time)
     //   - createdByUid: string (required, immutable by denying updates)
     //
+    // Collection: evaluation-docu
+    // Document ID: interview-details document ID
+    // Fields:
+    //   - documentId: string (required, must match document ID)
+    //   - draftHtml: string (required, 0..250000 chars)
+    //   - promptTemplateId: string (required, must be evaluation-prompt)
+    //   - createdAt: timestamp (required, must be request time)
+    //   - createdByUid: string (required, must match owner of source interview-details document)
+    //
     // ===============================================================
 
     function isAuthenticated() {
@@ -34,6 +43,16 @@ service cloud.firestore {
       return isAuthenticated() &&
         resource.data.createdByUid is string &&
         resource.data.createdByUid == request.auth.uid;
+    }
+
+    function interviewDetailsPath(documentId) {
+      return /databases/$(database)/documents/interview-details/$(documentId);
+    }
+
+    function isInterviewOwner(documentId) {
+      return isAuthenticated() &&
+        exists(interviewDetailsPath(documentId)) &&
+        get(interviewDetailsPath(documentId)).data.createdByUid == request.auth.uid;
     }
 
     function hasRequiredFields(data, fields) {
@@ -122,11 +141,45 @@ service cloud.firestore {
         data.createdByUid == request.auth.uid;
     }
 
+    function isValidEvaluationDocu(data, documentId) {
+      return hasRequiredFields(data, [
+          'documentId',
+          'draftHtml',
+          'promptTemplateId',
+          'createdAt',
+          'createdByUid',
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'documentId',
+          'draftHtml',
+          'promptTemplateId',
+          'createdAt',
+          'createdByUid',
+        ]) &&
+        validString(data.documentId, 1, 180) &&
+        data.documentId == documentId &&
+        validString(data.draftHtml, 0, 250000) &&
+        data.promptTemplateId is string &&
+        data.promptTemplateId == 'evaluation-prompt' &&
+        data.createdAt == request.time &&
+        data.createdByUid is string &&
+        data.createdByUid == request.auth.uid &&
+        isInterviewOwner(documentId);
+    }
+
     match /interview-details/{interviewDetailsId} {
       allow create: if isAuthenticated() &&
         uidUnchanged() &&
         isValidInterviewDetails(request.resource.data);
       allow read: if isDocOwner();
+      allow update, delete: if false;
+    }
+
+    match /evaluation-docu/{documentId} {
+      allow create: if isAuthenticated() &&
+        uidUnchanged() &&
+        isValidEvaluationDocu(request.resource.data, documentId);
+      allow read: if isInterviewOwner(documentId);
       allow update, delete: if false;
     }
 
