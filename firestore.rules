@@ -27,6 +27,7 @@ service cloud.firestore {
     //   - promptTemplateId: string (required, must be evaluation-prompt)
     //   - createdAt: timestamp (required, must be request time)
     //   - createdByUid: string (required, must match owner of source interview-details document)
+    //   - isFinal: bool (required)
     //
     // ===============================================================
 
@@ -148,6 +149,7 @@ service cloud.firestore {
           'promptTemplateId',
           'createdAt',
           'createdByUid',
+          'isFinal',
         ]) &&
         hasOnlyAllowedFields(data, [
           'documentId',
@@ -155,6 +157,7 @@ service cloud.firestore {
           'promptTemplateId',
           'createdAt',
           'createdByUid',
+          'isFinal',
         ]) &&
         validString(data.documentId, 1, 180) &&
         data.documentId == documentId &&
@@ -164,6 +167,39 @@ service cloud.firestore {
         data.createdAt == request.time &&
         data.createdByUid is string &&
         data.createdByUid == request.auth.uid &&
+        data.isFinal is bool &&
+        isInterviewOwner(documentId);
+    }
+
+    function isValidEvaluationDocuUpdate(data, documentId) {
+      return hasRequiredFields(data, [
+          'documentId',
+          'draftHtml',
+          'promptTemplateId',
+          'createdAt',
+          'createdByUid',
+          'isFinal',
+        ]) &&
+        hasOnlyAllowedFields(data, [
+          'documentId',
+          'draftHtml',
+          'promptTemplateId',
+          'createdAt',
+          'createdByUid',
+          'isFinal',
+        ]) &&
+        validString(data.documentId, 1, 180) &&
+        data.documentId == documentId &&
+        data.documentId == resource.data.documentId &&
+        validString(data.draftHtml, 0, 250000) &&
+        data.promptTemplateId is string &&
+        data.promptTemplateId == 'evaluation-prompt' &&
+        data.promptTemplateId == resource.data.promptTemplateId &&
+        data.createdAt == resource.data.createdAt &&
+        data.createdByUid is string &&
+        data.createdByUid == request.auth.uid &&
+        data.createdByUid == resource.data.createdByUid &&
+        data.isFinal is bool &&
         isInterviewOwner(documentId);
     }
 
@@ -180,7 +216,10 @@ service cloud.firestore {
         uidUnchanged() &&
         isValidEvaluationDocu(request.resource.data, documentId);
       allow read: if isInterviewOwner(documentId);
-      allow update, delete: if false;
+      allow update: if isAuthenticated() &&
+        isDocOwner() &&
+        isValidEvaluationDocuUpdate(request.resource.data, documentId);
+      allow delete: if false;
     }
 
     match /{document=**} {

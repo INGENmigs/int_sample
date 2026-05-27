@@ -754,17 +754,6 @@ code {
   box-sizing: border-box;
 }
 
-.rich-editor-header h3 {
-  margin: 0;
-  color: #111827;
-  letter-spacing: 0;
-}
-
-.rich-editor-header h3 {
-  font-size: 18px;
-  line-height: 1.25;
-}
-
 .rich-editor-panel {
   display: grid;
   overflow: hidden;
@@ -779,10 +768,77 @@ code {
   border-bottom: 1px solid var(--border);
 }
 
-.rich-editor-header span {
+.editor-status {
   color: #667085;
   font-size: 13px;
   font-weight: 700;
+}
+
+.editor-save-actions {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.editor-primary-action,
+.editor-menu-trigger,
+.editor-save-menu-list button {
+  min-height: 36px;
+  border: 1px solid #111827;
+  color: #ffffff;
+  background: #111827;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.editor-primary-action {
+  border-radius: 6px 0 0 6px;
+  padding: 0 14px;
+}
+
+.editor-save-menu {
+  position: relative;
+}
+
+.editor-menu-trigger {
+  width: 36px;
+  border-left-color: rgba(255, 255, 255, 0.25);
+  border-radius: 0 6px 6px 0;
+  padding: 0;
+}
+
+.editor-primary-action:hover:not(:disabled),
+.editor-menu-trigger:hover:not(:disabled),
+.editor-save-menu-list button:hover {
+  background: #0f1f35;
+}
+
+.editor-primary-action:disabled,
+.editor-menu-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.editor-save-menu-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: auto;
+  right: 0;
+  z-index: 5;
+  min-width: 150px;
+  padding: 6px;
+  border: 1px solid #d9dee7;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, 0.16);
+}
+
+.editor-save-menu-list button {
+  width: 100%;
+  border-color: transparent;
+  border-radius: 5px;
+  padding: 0 10px;
+  text-align: left;
 }
 
 .editor-toolbar {
@@ -861,6 +917,11 @@ code {
   opacity: 0.5;
 }
 
+.editor-format-select select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .editor-toolbar button:focus-visible,
 .editor-format-select select:focus-visible,
 .rich-editor-content .ProseMirror:focus-visible {
@@ -876,6 +937,11 @@ code {
   line-height: 1.65;
   box-sizing: border-box;
   overflow-x: auto;
+}
+
+.rich-editor-content.is-disabled .ProseMirror {
+  background: #f8fafc;
+  cursor: not-allowed;
 }
 
 .rich-editor-content .ProseMirror * {

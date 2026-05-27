@@ -73,7 +73,7 @@ function MenuButton({
   );
 }
 
-function BlockFormatSelect({ editor }) {
+function BlockFormatSelect({ disabled = false, editor }) {
   const currentValue = (() => {
     if (!editor) {
       return "paragraph";
@@ -109,7 +109,11 @@ function BlockFormatSelect({ editor }) {
   return (
     <label className="editor-format-select">
       <span>Style</span>
-      <select value={currentValue} onChange={handleChange} disabled={!editor}>
+      <select
+        value={currentValue}
+        onChange={handleChange}
+        disabled={!editor || disabled}
+      >
         <option value="paragraph">Normal text</option>
         <option value="heading-1">Heading 1</option>
         <option value="heading-2">Heading 2</option>
@@ -119,7 +123,7 @@ function BlockFormatSelect({ editor }) {
   );
 }
 
-function EditorToolbar({ editor }) {
+function EditorToolbar({ disabled = false, editor }) {
   function handleLink() {
     const previousUrl = editor.getAttributes("link").href;
     const nextUrl = window.prompt("Enter a link URL", previousUrl || "");
@@ -140,7 +144,7 @@ function EditorToolbar({ editor }) {
   return (
     <div className="editor-toolbar" aria-label="Text formatting controls">
       <div className="editor-toolbar-group">
-        <BlockFormatSelect editor={editor} />
+        <BlockFormatSelect disabled={disabled} editor={editor} />
       </div>
 
       <div className="editor-toolbar-group" aria-label="Text style">
@@ -148,6 +152,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="bold"
           title="Bold"
+          disabled={disabled}
           isActive={editor?.isActive("bold") ?? false}
           onClick={() => editor.chain().focus().toggleBold().run()}
         />
@@ -155,6 +160,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="italic"
           title="Italic"
+          disabled={disabled}
           isActive={editor?.isActive("italic") ?? false}
           onClick={() => editor.chain().focus().toggleItalic().run()}
         />
@@ -162,6 +168,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="underline"
           title="Underline"
+          disabled={disabled}
           isActive={editor?.isActive("underline") ?? false}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
         />
@@ -169,6 +176,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="strike"
           title="Strikethrough"
+          disabled={disabled}
           isActive={editor?.isActive("strike") ?? false}
           onClick={() => editor.chain().focus().toggleStrike().run()}
         />
@@ -176,6 +184,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="code"
           title="Inline code"
+          disabled={disabled}
           isActive={editor?.isActive("code") ?? false}
           onClick={() => editor.chain().focus().toggleCode().run()}
         />
@@ -186,6 +195,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="bulletList"
           title="Bullet list"
+          disabled={disabled}
           isActive={editor?.isActive("bulletList") ?? false}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
         />
@@ -193,6 +203,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="orderedList"
           title="Numbered list"
+          disabled={disabled}
           isActive={editor?.isActive("orderedList") ?? false}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
         />
@@ -200,6 +211,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="quote"
           title="Block quote"
+          disabled={disabled}
           isActive={editor?.isActive("blockquote") ?? false}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
         />
@@ -207,6 +219,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="rule"
           title="Horizontal line"
+          disabled={disabled}
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
         />
       </div>
@@ -216,6 +229,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="alignLeft"
           title="Align left"
+          disabled={disabled}
           isActive={editor?.isActive({ textAlign: "left" }) ?? false}
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
         />
@@ -223,6 +237,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="alignCenter"
           title="Align center"
+          disabled={disabled}
           isActive={editor?.isActive({ textAlign: "center" }) ?? false}
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
         />
@@ -230,6 +245,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="alignRight"
           title="Align right"
+          disabled={disabled}
           isActive={editor?.isActive({ textAlign: "right" }) ?? false}
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
         />
@@ -237,6 +253,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="alignJustify"
           title="Justify"
+          disabled={disabled}
           isActive={editor?.isActive({ textAlign: "justify" }) ?? false}
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
         />
@@ -247,6 +264,7 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="link"
           title="Link"
+          disabled={disabled}
           isActive={editor?.isActive("link") ?? false}
           onClick={handleLink}
         />
@@ -254,13 +272,14 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="unlink"
           title="Unlink"
-          disabled={!editor?.isActive("link")}
+          disabled={disabled || !editor?.isActive("link")}
           onClick={() => editor.chain().focus().unsetLink().run()}
         />
         <MenuButton
           editor={editor}
           icon="clear"
           title="Clear formatting"
+          disabled={disabled}
           onClick={() =>
             editor.chain().focus().unsetAllMarks().clearNodes().unsetTextAlign().run()
           }
@@ -272,14 +291,14 @@ function EditorToolbar({ editor }) {
           editor={editor}
           icon="undo"
           title="Undo"
-          disabled={!editor?.can().undo()}
+          disabled={disabled || !editor?.can().undo()}
           onClick={() => editor.chain().focus().undo().run()}
         />
         <MenuButton
           editor={editor}
           icon="redo"
           title="Redo"
-          disabled={!editor?.can().redo()}
+          disabled={disabled || !editor?.can().redo()}
           onClick={() => editor.chain().focus().redo().run()}
         />
       </div>
@@ -291,6 +310,9 @@ function RichTextEditor({
   ariaLabel = "Rich text evaluation draft",
   className = "rich-editor-content",
   content = "",
+  disabled = false,
+  onEditorActivity,
+  onEditorFocus,
   onEditorReady,
 }) {
   const editor = useEditor({
@@ -306,9 +328,11 @@ function RichTextEditor({
       }),
     ],
     content,
+    editable: !disabled,
     editorProps: {
       attributes: {
         "aria-label": ariaLabel,
+        "aria-disabled": String(disabled),
       },
     },
   });
@@ -326,6 +350,46 @@ function RichTextEditor({
   }, [editor, onEditorReady]);
 
   useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    editor.setEditable(!disabled);
+    editor.view.dom.setAttribute("aria-disabled", String(disabled));
+  }, [disabled, editor]);
+
+  useEffect(() => {
+    if (!editor) {
+      return undefined;
+    }
+
+    function handleFocus() {
+      if (disabled) {
+        return;
+      }
+
+      onEditorFocus?.();
+      onEditorActivity?.();
+    }
+
+    function handleUpdate() {
+      if (disabled) {
+        return;
+      }
+
+      onEditorActivity?.();
+    }
+
+    editor.on("focus", handleFocus);
+    editor.on("update", handleUpdate);
+
+    return () => {
+      editor.off("focus", handleFocus);
+      editor.off("update", handleUpdate);
+    };
+  }, [disabled, editor, onEditorActivity, onEditorFocus]);
+
+  useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
@@ -333,8 +397,11 @@ function RichTextEditor({
 
   return (
     <>
-      <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} className={className} />
+      <EditorToolbar disabled={disabled} editor={editor} />
+      <EditorContent
+        editor={editor}
+        className={`${className}${disabled ? " is-disabled" : ""}`}
+      />
     </>
   );
 }
